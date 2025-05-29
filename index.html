@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caleb Frankenberger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,300;0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color-dark: #181a1b;
+            --text-color-dark: #E0E0E0;
+            --accent-color-dark: #5E81AC;
+            --secondary-accent-dark: #88C0D0;
+            --border-color-dark: #333A3C; 
+            --link-text-dark: var(--secondary-accent-dark); 
+            --link-hover-text-dark: var(--accent-color-dark);
+            --cursor-color-dark: var(--secondary-accent-dark); /* Used for prompt color */
+
+            --bg-color-light: #F8F4EC; 
+            --text-color-light: #2E3440; 
+            --accent-color-light: #141E61; 
+            --secondary-accent-light: #4C566A; 
+            --border-color-light: #D8DEE9;
+            --link-text-light: var(--accent-color-light);
+            --link-hover-text-light: var(--secondary-accent-light);
+            --cursor-color-light: var(--accent-color-light); /* Used for prompt color */
+
+
+            --font-serif: 'Lora', serif;
+            --font-sans: 'Fira Sans', sans-serif;
+
+            --bg-color: var(--bg-color-dark);
+            --text-color: var(--text-color-dark);
+            --accent-color: var(--accent-color-dark);
+            --secondary-accent: var(--secondary-accent-dark);
+            --border-color: var(--border-color-dark);
+            --link-text-color: var(--link-text-dark);
+            --link-hover-color: var(--link-hover-text-dark);
+            --cursor-color: var(--cursor-color-dark);
+        }
+
+        body.light-mode {
+            --bg-color: var(--bg-color-light);
+            --text-color: var(--text-color-light);
+            --accent-color: var(--accent-color-light);
+            --secondary-accent: var(--secondary-accent-light);
+            --border-color: var(--border-color-light);
+            --link-text-color: var(--link-text-light);
+            --link-hover-color: var(--link-hover-text-light);
+            --cursor-color: var(--cursor-color-light);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 16px; }
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            overflow-x: hidden; 
+        }
+
+        .content-wrapper {
+            max-width: 700px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+        }
+        
+        .typewriter-text { 
+            position: relative; 
+            vertical-align: baseline; 
+            min-height: 1.2em; 
+        }
+
+        .link-typewriter-text {
+            display: inline-block; 
+        }
+
+        .link-typewriter-text.has-cursor::before { 
+            content: '> ';
+            color: var(--cursor-color); 
+        }
+        
+        @keyframes blink { 
+            50% { opacity: 0; }
+        }
+
+        .greeting { 
+            font-family: var(--font-serif);
+            font-size: clamp(4rem, 15vw, 8rem);
+            font-weight: 600;
+            color: var(--text-color);
+            line-height: 1.1;
+            margin-bottom: 0.25rem;
+        }
+
+        .introduction { 
+            font-family: var(--font-serif);
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            font-weight: 400;
+            color: var(--accent-color);
+            margin-bottom: 2.5rem; 
+            letter-spacing: 0.5px;
+            width: 100%; 
+        }
+         .introduction strong { 
+            font-weight: 700;
+            color: inherit; 
+        }
+
+        .connect-links-wrapper {
+            width: 100%; 
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-top: 1rem; 
+        }
+        
+        .connect-links {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.9rem; 
+        }
+
+        .connect-links a { 
+            font-family: var(--font-sans);
+            font-size: clamp(1rem, 2.2vw, 1.1rem); 
+            color: var(--link-text-color);
+            text-decoration: none;
+            padding: 0.15rem 0; 
+            transition: color 0.2s ease, border-color 0.2s ease;
+            border-bottom: 1px solid transparent; 
+            text-align: left;
+            opacity: 0; 
+        }
+         .connect-links a.visible {
+            opacity: 1;
+        }
+
+        .connect-links a:hover, .connect-links a:focus {
+            color: var(--link-hover-color);
+            border-bottom: 1px solid var(--link-hover-color); 
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            z-index: 1000;
+        }
+        .theme-toggle:hover {
+            background-color: var(--border-color); 
+        }
+        .theme-toggle svg {
+            width: 22px; 
+            height: 22px;
+        }
+        
+        .fancy-divider {
+            width: 100%;
+            text-align: center;
+            margin-top: 3rem; 
+            font-family: var(--font-sans); 
+            font-size: 1.5rem; 
+            color: var(--accent-color); /* Changed to accent-color */
+            letter-spacing: 0.3em; 
+            opacity: 0; 
+            transition: opacity 0.8s ease-in-out;
+        }
+        .fancy-divider.visible {
+            opacity: 1;
+        }
+
+        body > footer {
+           display: none;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 1.5rem; }
+            .content-wrapper { 
+                align-items: flex-start;
+            }
+            .greeting { font-size: clamp(3rem, 18vw, 6rem); }
+            .introduction { font-size: clamp(1.3rem, 5vw, 1.8rem); }
+            .connect-links a { font-size: clamp(0.95rem, 3vw, 1.05rem); }
+            .theme-toggle { top: 15px; right: 15px; }
+            .fancy-divider { margin-top: 2.5rem; font-size: 1.3rem; letter-spacing: 0.2em;}
+             .connect-links a {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    </button>
+
+    <div class="content-wrapper">
+        <h1 class="greeting typewriter-text" id="typewriter-greeting"></h1>
+        <p class="introduction" id="typewriter-intro-paragraph">
+            <span id="intro-prefix" class="typewriter-text"></span><strong id="intro-name" class="typewriter-text"></strong><span id="intro-suffix" class="typewriter-text"></span>
+        </p>
+        
+        <div class="connect-links-wrapper" id="links-wrapper">
+            <div class="connect-links">
+                <a href="https://www.linkedin.com/in/calebfrankenberger" target="_blank" rel="noopener noreferrer" class="link-typewriter-text" data-linktext="linkedin.com/in/calebfrankenberger"></a>
+                <a href="https://github.com/calebfrankenberger" target="_blank" rel="noopener noreferrer" class="link-typewriter-text" data-linktext="github.com/calebfrankenberger"></a>
+                <a href="#" id="emailLink" class="link-typewriter-text" data-linktext="mail [at] calebfrankenberger [dot] com"></a>
+                <a href="#" id="cvLinkPlaceholder" class="link-typewriter-text" data-linktext="Resume (PDF)"></a>
+            </div>
+        </div>
+        <div class="fancy-divider" id="page-ender">* * * * * *</div>
+    </div>
+
+    <footer>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        const sunIconNew = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+        const moonIconNew = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M21.64,13.5A9,9,0,1,1,10.5,2.36,7,7,0,0,0,21.64,13.5Z"></path></svg>`;
+
+
+        function setTheme(isLight) {
+            let newAriaLabel = '';
+            if (isLight) {
+                body.classList.add('light-mode');
+                themeToggle.innerHTML = moonIconNew;
+                if(themeToggle.querySelector('svg')) {
+                    themeToggle.querySelector('svg').style.fill = 'currentColor'; 
+                    themeToggle.querySelector('svg').style.stroke = 'none';
+                }
+                localStorage.setItem('theme', 'light');
+                newAriaLabel = 'Switch to dark theme';
+            } else {
+                body.classList.remove('light-mode');
+                themeToggle.innerHTML = sunIconNew;
+                 if(themeToggle.querySelector('svg')) {
+                    themeToggle.querySelector('svg').style.fill = 'none';
+                    themeToggle.querySelector('svg').style.stroke = 'currentColor';
+                }
+                localStorage.setItem('theme', 'dark');
+                newAriaLabel = 'Switch to light theme';
+            }
+            themeToggle.setAttribute('aria-label', newAriaLabel);
+        }
+
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme === 'light') {
+            setTheme(true);
+        } else if (savedTheme === 'dark') {
+            setTheme(false);
+        } else if (prefersDark) {
+            setTheme(false);
+        } else {
+            setTheme(false);
+        }
+
+        themeToggle.addEventListener('click', () => {
+            setTheme(!body.classList.contains('light-mode'));
+        });
+        
+        const cvLink = document.getElementById('cvLinkPlaceholder');
+        if (cvLink) {
+             cvLink.addEventListener('click', (e) => {
+                if (cvLink.getAttribute('href') === '#') {
+                    e.preventDefault();
+                    alert('CV link is not yet configured.'); 
+                }
+            });
+        }
+
+        const emailLink = document.getElementById('emailLink');
+        if(emailLink){
+            const user = 'mail';
+            const domain = 'calebfrankenberger.com';
+            emailLink.setAttribute('href', `mailto:${user}@${domain}`);
+        }
+
+        const greetingEl = document.getElementById('typewriter-greeting');
+        const introPrefixEl = document.getElementById('intro-prefix');
+        const introNameEl = document.getElementById('intro-name');
+        const introSuffixEl = document.getElementById('intro-suffix');
+        const linksToAnimate = document.querySelectorAll('.connect-links a.link-typewriter-text');
+        const pageEnderEl = document.getElementById('page-ender');
+
+
+        const greetingText = "Hello,";
+        const introPrefixText = "I'm "; 
+        const introNameText = "Caleb Frankenberger";
+        const introSuffixText = ".";
+
+        const baseTypingSpeed = 120; 
+        const linkBaseTypingSpeed = 70; 
+        const typingVariability = 40; 
+
+        const pauseAfterGreeting = 300; 
+        const pauseBeforeName = 100; 
+        const pauseAfterName = 300; 
+        const pauseBeforeLinks = 400; 
+        
+        const interLinkDelay = 150; 
+        const enderDelay = 400; 
+
+        function getLinkTypingSpeed() { 
+            let speed = linkBaseTypingSpeed + (Math.random() * typingVariability * 2) - typingVariability;
+            return Math.max(20, speed); 
+        }
+
+        function typeOutMainText(element, text, callback) {
+            let i = 0;
+            element.textContent = ''; 
+            
+            function typeChar() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(typeChar, baseTypingSpeed); 
+                } else {
+                    if (callback) callback();
+                }
+            }
+            typeChar();
+        }
+        
+        function typeOutLinkWithPrompt(linkElement, textToType, callback) {
+            linkElement.textContent = ''; 
+            linkElement.classList.add('has-cursor'); 
+            linkElement.classList.remove('typing-done');
+            linkElement.classList.add('visible'); 
+
+            let i = 0;
+            function typeChar() {
+                if (i < textToType.length) {
+                    linkElement.textContent += textToType.charAt(i);
+                    i++;
+                    setTimeout(typeChar, getLinkTypingSpeed()); 
+                } else {
+                    linkElement.classList.add('typing-done'); 
+                    linkElement.classList.remove('has-cursor'); 
+                    if (callback) callback();
+                }
+            }
+            setTimeout(typeChar, 150); 
+        }
+
+        function animateLinksSequentially(index = 0) {
+            if (index < linksToAnimate.length) {
+                const linkEl = linksToAnimate[index];
+                const text = linkEl.dataset.linktext;
+                typeOutLinkWithPrompt(linkEl, text, () => { 
+                    setTimeout(() => animateLinksSequentially(index + 1), interLinkDelay);
+                });
+            } else {
+                if (pageEnderEl) {
+                    pageEnderEl.style.transitionDelay = `${enderDelay / 1000}s`;
+                    pageEnderEl.classList.add('visible');
+                }
+            }
+        }
+
+        greetingEl.textContent = ''; 
+        introPrefixEl.textContent = '';
+        introNameEl.textContent = '';
+        introSuffixEl.textContent = '';
+
+        typeOutMainText(greetingEl, greetingText, () => {
+            setTimeout(() => {
+                typeOutMainText(introPrefixEl, introPrefixText, () => {
+                    setTimeout(() => {
+                        typeOutMainText(introNameEl, introNameText, () => {
+                            setTimeout(() => {
+                                 typeOutMainText(introSuffixEl, introSuffixText, () => {
+                                    setTimeout(() => { 
+                                        animateLinksSequentially();
+                                    }, pauseBeforeLinks);
+                                });
+                            }, pauseAfterName); 
+                        });
+                    }, pauseBeforeName); 
+                });
+            }, pauseAfterGreeting); 
+        });
+    </script>
+</body>
+</html>
