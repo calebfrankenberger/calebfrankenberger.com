@@ -18,15 +18,18 @@
             --link-hover-text-dark: var(--accent-color-dark);
             --cursor-color-dark: var(--secondary-accent-dark); 
 
-            --bg-color-light: #F0EBE3;                                    
+            --bg-color-light: #F0EBE3;             
             --text-color-light: #423F3B;       
-            --accent-color-light: #4E709D;                           
+            --accent-color-light: #4E709D;             
             --secondary-accent-light: #A69D90;
             --border-color-light: #CEC8BD;     
-            --link-text-light: #704A27;         
+            --link-text-light: #704A27;        
             --link-hover-text-light: #8C5A31;  
             --cursor-color-light: var(--accent-color-light); 
 
+            --drawing-stroke-color-dark: var(--secondary-accent-dark);
+            --drawing-stroke-color-light: var(--accent-color-light); 
+            --drawing-stroke-color: var(--drawing-stroke-color-dark); 
 
 
             --font-serif: 'Lora', serif;
@@ -51,10 +54,12 @@
             --link-text-color: var(--link-text-light);
             --link-hover-color: var(--link-hover-text-light);
             --cursor-color: var(--cursor-color-light);
+            --drawing-stroke-color: var(--drawing-stroke-color-light); 
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { font-size: 16px; }
+        
         body {
             font-family: var(--font-sans);
             background-color: var(--bg-color);
@@ -68,6 +73,21 @@
             min-height: 100vh;
             padding: 2rem;
             overflow-x: hidden; 
+            -webkit-user-select: none; 
+            -moz-user-select: none;    
+            -ms-user-select: none;     
+            user-select: none;         
+            cursor: default; 
+        }
+
+        #drawingCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0; 
+            cursor: default; 
         }
 
         .content-wrapper {
@@ -77,8 +97,19 @@
             flex-direction: column;
             align-items: flex-start;
             text-align: left;
+            position: relative; 
+            z-index: 1;       
+            pointer-events: none; 
         }
         
+        .content-wrapper a, 
+        .content-wrapper button, 
+        .content-wrapper input, 
+        .content-wrapper select, 
+        .content-wrapper textarea {
+            pointer-events: auto; 
+        }
+
         .typewriter-text { 
             position: relative; 
             vertical-align: baseline; 
@@ -94,10 +125,6 @@
             color: var(--cursor-color); 
         }
         
-        @keyframes blink { 
-            50% { opacity: 0; }
-        }
-
         .greeting { 
             font-family: var(--font-serif);
             font-size: clamp(4rem, 15vw, 8rem);
@@ -116,7 +143,7 @@
             letter-spacing: 0.5px;
             width: 100%; 
         }
-         .introduction strong { 
+        .introduction strong { 
             font-weight: 700;
             color: inherit; 
         }
@@ -147,7 +174,7 @@
             text-align: left;
             opacity: 0; 
         }
-         .connect-links a.visible {
+        .connect-links a.visible {
             opacity: 1;
         }
 
@@ -166,12 +193,13 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            cursor: pointer;
+            cursor: pointer; 
             display: flex;
             align-items: center;
             justify-content: center;
             transition: background-color 0.3s ease, border-color 0.3s ease;
-            z-index: 1000;
+            z-index: 2; 
+            pointer-events: auto; 
         }
         .theme-toggle:hover {
             background-color: var(--border-color); 
@@ -187,7 +215,7 @@
             margin-top: 3rem; 
             font-family: var(--font-sans); 
             font-size: 1.5rem; 
-            color: var(--accent-color); /* Changed to accent-color */
+            color: var(--secondary-accent); 
             letter-spacing: 0.3em; 
             opacity: 0; 
             transition: opacity 0.8s ease-in-out;
@@ -210,14 +238,14 @@
             .connect-links a { font-size: clamp(0.95rem, 3vw, 1.05rem); }
             .theme-toggle { top: 15px; right: 15px; }
             .fancy-divider { margin-top: 2.5rem; font-size: 1.3rem; letter-spacing: 0.2em;}
-             .connect-links a {
+            .connect-links a {
                 text-align: left;
             }
         }
     </style>
 </head>
 <body>
-
+    <canvas id="drawingCanvas"></canvas> 
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
     </button>
 
@@ -248,13 +276,12 @@
         const sunIconNew = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
         const moonIconNew = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M21.64,13.5A9,9,0,1,1,10.5,2.36,7,7,0,0,0,21.64,13.5Z"></path></svg>`;
 
-
         function setTheme(isLight) {
             let newAriaLabel = '';
             if (isLight) {
                 body.classList.add('light-mode');
-                themeToggle.innerHTML = moonIconNew;
-                if(themeToggle.querySelector('svg')) {
+                if (themeToggle) themeToggle.innerHTML = moonIconNew; 
+                if(themeToggle && themeToggle.querySelector('svg')) {
                     themeToggle.querySelector('svg').style.fill = 'currentColor'; 
                     themeToggle.querySelector('svg').style.stroke = 'none';
                 }
@@ -262,15 +289,15 @@
                 newAriaLabel = 'Switch to dark theme';
             } else {
                 body.classList.remove('light-mode');
-                themeToggle.innerHTML = sunIconNew;
-                 if(themeToggle.querySelector('svg')) {
+                if (themeToggle) themeToggle.innerHTML = sunIconNew; 
+                if(themeToggle && themeToggle.querySelector('svg')) {
                     themeToggle.querySelector('svg').style.fill = 'none';
                     themeToggle.querySelector('svg').style.stroke = 'currentColor';
                 }
                 localStorage.setItem('theme', 'dark');
                 newAriaLabel = 'Switch to light theme';
             }
-            themeToggle.setAttribute('aria-label', newAriaLabel);
+            if (themeToggle) themeToggle.setAttribute('aria-label', newAriaLabel); 
         }
 
         const savedTheme = localStorage.getItem('theme');
@@ -286,13 +313,15 @@
             setTheme(false);
         }
 
-        themeToggle.addEventListener('click', () => {
-            setTheme(!body.classList.contains('light-mode'));
-        });
+        if (themeToggle) { 
+            themeToggle.addEventListener('click', () => {
+                setTheme(!body.classList.contains('light-mode'));
+            });
+        }
         
         const cvLink = document.getElementById('cvLinkPlaceholder');
         if (cvLink) {
-             cvLink.addEventListener('click', (e) => {
+            cvLink.addEventListener('click', (e) => {
                 if (cvLink.getAttribute('href') === '#') {
                     e.preventDefault();
                     alert('CV link is not yet configured.'); 
@@ -313,7 +342,6 @@
         const introSuffixEl = document.getElementById('intro-suffix');
         const linksToAnimate = document.querySelectorAll('.connect-links a.link-typewriter-text');
         const pageEnderEl = document.getElementById('page-ender');
-
 
         const greetingText = "Hello,";
         const introPrefixText = "I'm "; 
@@ -338,6 +366,7 @@
         }
 
         function typeOutMainText(element, text, callback) {
+            if (!element) { if (callback) callback(); return; } 
             let i = 0;
             element.textContent = ''; 
             
@@ -354,6 +383,7 @@
         }
         
         function typeOutLinkWithPrompt(linkElement, textToType, callback) {
+            if (!linkElement) { if (callback) callback(); return; } 
             linkElement.textContent = ''; 
             linkElement.classList.add('has-cursor'); 
             linkElement.classList.remove('typing-done');
@@ -375,7 +405,7 @@
         }
 
         function animateLinksSequentially(index = 0) {
-            if (index < linksToAnimate.length) {
+            if (linksToAnimate && index < linksToAnimate.length) { 
                 const linkEl = linksToAnimate[index];
                 const text = linkEl.dataset.linktext;
                 typeOutLinkWithPrompt(linkEl, text, () => { 
@@ -389,10 +419,10 @@
             }
         }
 
-        greetingEl.textContent = ''; 
-        introPrefixEl.textContent = '';
-        introNameEl.textContent = '';
-        introSuffixEl.textContent = '';
+        if (greetingEl) greetingEl.textContent = ''; 
+        if (introPrefixEl) introPrefixEl.textContent = '';
+        if (introNameEl) introNameEl.textContent = '';
+        if (introSuffixEl) introSuffixEl.textContent = '';
 
         typeOutMainText(greetingEl, greetingText, () => {
             setTimeout(() => {
@@ -400,7 +430,7 @@
                     setTimeout(() => {
                         typeOutMainText(introNameEl, introNameText, () => {
                             setTimeout(() => {
-                                 typeOutMainText(introSuffixEl, introSuffixText, () => {
+                                typeOutMainText(introSuffixEl, introSuffixText, () => {
                                     setTimeout(() => { 
                                         animateLinksSequentially();
                                     }, pauseBeforeLinks);
@@ -411,6 +441,107 @@
                 });
             }, pauseAfterGreeting); 
         });
+
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas ? canvas.getContext('2d') : null; 
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        function setCanvasDimensionsAndClear() {
+            if (!canvas || !ctx) return; 
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            clearCanvasAndFillWithBackground(); 
+        }
+
+        function getThemeBackgroundColor() {
+            return getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
+        }
+
+        function getDrawingStrokeColor() {
+            return getComputedStyle(document.documentElement).getPropertyValue('--drawing-stroke-color').trim();
+        }
+
+        function clearCanvasAndFillWithBackground() {
+            if (!ctx) return; 
+            const bgColor = getThemeBackgroundColor();
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        if (canvas && ctx) { 
+            window.addEventListener('load', setCanvasDimensionsAndClear);
+            window.addEventListener('resize', () => { 
+                setCanvasDimensionsAndClear();
+            });
+
+            canvas.addEventListener('mousedown', (e) => {
+                isDrawing = true;
+                [lastX, lastY] = [e.offsetX, e.offsetY];
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isDrawing) return;
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.strokeStyle = getDrawingStrokeColor();
+                ctx.lineWidth = 2; 
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+                [lastX, lastY] = [e.offsetX, e.offsetY];
+            });
+
+            canvas.addEventListener('mouseup', () => isDrawing = false);
+            canvas.addEventListener('mouseout', () => isDrawing = false); 
+
+            canvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) { 
+                    e.preventDefault(); 
+                    isDrawing = true;
+                    const touch = e.touches[0];
+                    const rect = canvas.getBoundingClientRect(); 
+                    [lastX, lastY] = [touch.clientX - rect.left, touch.clientY - rect.top];
+                }
+            }, { passive: false }); 
+
+            canvas.addEventListener('touchmove', (e) => {
+                if (!isDrawing || e.touches.length !== 1) return;
+                e.preventDefault(); 
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                const currentX = touch.clientX - rect.left;
+                const currentY = touch.clientY - rect.top;
+
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(currentX, currentY);
+                ctx.strokeStyle = getDrawingStrokeColor();
+                ctx.lineWidth = 2; 
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
+                [lastX, lastY] = [currentX, currentY];
+            }, { passive: false });
+
+            canvas.addEventListener('touchend', (e) => {
+                if (e.touches.length === 0) { 
+                     isDrawing = false;
+                }
+            });
+            canvas.addEventListener('touchcancel', () => isDrawing = false);
+
+            const themeToggleBtnForCanvas = document.getElementById('themeToggle'); 
+            if (themeToggleBtnForCanvas) {
+                themeToggleBtnForCanvas.addEventListener('click', () => {
+                    setTimeout(() => {
+                        clearCanvasAndFillWithBackground();
+                    }, 50); 
+                });
+            }
+        }
     </script>
 </body>
 </html>
